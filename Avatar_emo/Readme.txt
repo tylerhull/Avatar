@@ -1,7 +1,4 @@
-# Avatar
-Facial recognition with openCV4 controlling monster avatar
-
-## ****  Getting Started ****
+****  Getting Started ****
 This project is heavily based on OpenCV 4 with Python Blueprints, Second Edition
 By Dr. Menua Gevorgyan, Arsen Mamikonyan, and Michael Beyeler
 You can buy the book and download lots of example code from:
@@ -17,7 +14,7 @@ If you are using linux on MAC, then see below for help installing drivers
 for your webcam before you do a test with openCV.
 
 --------------------------------------------------------------------------------
-## **** Installation With Pip ****
+**** Installation With Pip ****
 Run the following command to install all the requirements from the doc.
 This sometimes works... you can also just install everything in the requirements
 document and you may need different versions based on your setup. Good luck.
@@ -25,7 +22,7 @@ document and you may need different versions based on your setup. Good luck.
 pip3 install -r requirements.txt
 
 --------------------------------------------------------------------------------
-## **** Instructions for setting up webcam on MAC ****
+**** Instructions for setting up webcam on MAC ****
 sudo apt-get install git
 sudo apt-get install curl xzcat cpio
 git clone https://github.com/patjak/facetimehd-firmware.git
@@ -47,4 +44,3 @@ sudo nano /etc/modules
 NOTE:
 Most of those steps will need to be repeated every time the kernel is upgraded.
 --------------------------------------------------------------------------------
-
