@@ -24,6 +24,7 @@ Chapter 8: Learning to Recognize Emotion in Faces
 import argparse
 import cv2
 import numpy as np
+import time
 
 import wx
 from pathlib import Path
@@ -33,6 +34,7 @@ from data.process import _pca_featurize
 from detectors import FaceDetector
 from wx_gui import BaseLayout       # Get the base layout template from wx
 
+lastlabel = 'neutral'
 
 class FacialExpressionRecognizerLayout(BaseLayout):
     def __init__(self, *args,
@@ -57,7 +59,37 @@ class FacialExpressionRecognizerLayout(BaseLayout):
         return _pca_featurize(head[None], *self.pca_args)
 
     def augment_layout(self):
-        pass
+        """Initializes GUI"""
+        # initialize data structure
+        self.samples = []
+        self.labels = []
+
+        pnl4 = wx.Panel(self, -1)
+        hbox4 = wx.BoxSizer(wx.HORIZONTAL)
+        img = cv2.imread('neutral.jpg',1)
+        cv2.imshow('AVATAR', img)
+
+        print(type(img))
+        # <class 'numpy.ndarray'>
+
+        print(img.shape)
+        # (225, 400, 3)
+
+        #img_rotate_90_clockwise = cv2.rotate(img, cv2.ROTATE_90_CLOCKWISE)
+        #cv2.imwrite('pen2.jpg', img_rotate_90_clockwise)
+
+        #pnl2.SetSizer(hbox4)
+        #time.sleep(1)
+        #cv2.destroyWindow('img')
+
+        # arrange all horizontal layouts vertically
+        self.panels_vertical.Add(pnl4, flag=wx.EXPAND | wx.BOTTOM, border=1)
+
+    #    pass
+    def update(label):
+        global lastlabel
+        lastlabel = label
+        return lastlabel
 
     def process_frame(self, frame_rgb: np.ndarray) -> np.ndarray:
         success, frame, self.head, (x, y) = self.face_detector.detect_face(
@@ -77,8 +109,59 @@ class FacialExpressionRecognizerLayout(BaseLayout):
         cv2.putText(frame, label, (x, y - 20),
                     cv2.FONT_HERSHEY_COMPLEX, 1, (0, 255, 0), 2)
 
-        return frame
+        global lastlabel
+        # Display the
+        if lastlabel != label:
+            cv2.destroyWindow('img')
+            if label == 'happy':  #if this was selected, go to collection mode.
+                cv2.waitKey(1)
+                img = cv2.imread('happy.jpg',1)
+                cv2.imshow('AVATAR', img)
+                lastlabel = label
 
+            elif label == 'sad':  #if this was selected, go to collection mode.
+                cv2.waitKey(1)
+                img2 = cv2.imread('sad.jpg',1)
+                cv2.imshow('AVATAR', img2)
+
+                cv2.waitKey(100)
+                img2 = cv2.imread('sad1.jpg',1)
+                cv2.imshow('AVATAR', img2)
+
+                cv2.waitKey(100)
+                img2 = cv2.imread('sad2.jpg',1)
+                cv2.imshow('AVATAR', img2)
+
+                cv2.waitKey(100)
+                img2 = cv2.imread('sad3.jpg',1)
+                cv2.imshow('AVATAR', img2)
+                lastlabel = label
+
+            elif label == 'surprised':  #if this was selected, go to collection mode.
+                cv2.waitKey(1)
+                img2 = cv2.imread('surprised.jpg',1)
+                cv2.imshow('AVATAR', img2)
+                lastlabel = label
+
+            elif label == 'angry':  #if this was selected, go to collection mode.
+                cv2.waitKey(1)
+                img2 = cv2.imread('angry.jpg',1)
+                cv2.imshow('AVATAR', img2)
+                lastlabel = label
+
+            elif label == 'disgusted':  #if this was selected, go to collection mode.
+                cv2.waitKey(1)
+                img2 = cv2.imread('disgusted.jpg',1)
+                cv2.imshow('AVATAR', img2)
+                lastlabel = label
+
+            elif label == 'neutral':  #if this was selected, go to collection mode.
+                cv2.waitKey(1)
+                img2 = cv2.imread('neutral.jpg',1)
+                cv2.imshow('AVATAR', img2)
+                lastlabel = label
+
+        return frame
 
 class DataCollectorLayout(BaseLayout):
 
@@ -174,7 +257,7 @@ def run_layout(layout_cls, **kwargs):
         capture.open()
 
     capture.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
-    capture.set(cv2.CAP_PROP_FRAME_HEIGHT, 420)
+    capture.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
 
     # start graphical user interface
     app = wx.App()
@@ -190,8 +273,25 @@ def run_layout2(layout_cls, **kwargs):
     if not(capture.isOpened()):
         capture.open()
 
-    capture.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
-    capture.set(cv2.CAP_PROP_FRAME_HEIGHT, 960)
+    capture.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
+    capture.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
+
+    # start graphical user interface
+    app = wx.App()
+    layout = layout_cls(capture, **kwargs)
+    layout.Center()
+    layout.Show()
+    app.MainLoop()
+
+def run_layout3(layout_cls, **kwargs):
+    # open webcam
+    capture = cv2.VideoCapture(0)
+    # opening the channel ourselves, if it failed to open.
+    if not(capture.isOpened()):
+        capture.open()
+
+    capture.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
+    capture.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
 
     # start graphical user interface
     app = wx.App()
@@ -215,3 +315,8 @@ if __name__ == '__main__':
         run_layout2(FacialExpressionRecognizerLayout,
                    title='Facial Expression Recognizer',
                    clf_path=args.classifier)
+
+
+    #    run_layout3(FacialExpressionRecognizerLayout,
+    #               title='Facial Expression Recognizer',
+    #               clf_path=args.classifier)
