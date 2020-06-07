@@ -46,7 +46,12 @@ class FacialExpressionRecognizerLayout(BaseLayout):
 
         self.face_detector = FaceDetector(
             face_cascade='params/haarcascade_frontalface_default.xml',
+
+            # Use this one if you don't have glasses
             eye_cascade='params/haarcascade_lefteye_2splits.xml')
+
+            # Use this one if you have glasses
+            #eye_cascade='params/haarcascade_eye_tree_eyeglasses.xml')
 
     def featurize_head(self, head):
         return _pca_featurize(head[None], *self.pca_args)
@@ -169,7 +174,7 @@ def run_layout(layout_cls, **kwargs):
         capture.open()
 
     capture.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
-    capture.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
+    capture.set(cv2.CAP_PROP_FRAME_HEIGHT, 420)
 
     # start graphical user interface
     app = wx.App()
@@ -178,17 +183,35 @@ def run_layout(layout_cls, **kwargs):
     layout.Show()
     app.MainLoop()
 
+def run_layout2(layout_cls, **kwargs):
+    # open webcam
+    capture = cv2.VideoCapture(0)
+    # opening the channel ourselves, if it failed to open.
+    if not(capture.isOpened()):
+        capture.open()
 
+    capture.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
+    capture.set(cv2.CAP_PROP_FRAME_HEIGHT, 960)
+
+    # start graphical user interface
+    app = wx.App()
+    layout = layout_cls(capture, **kwargs)
+    layout.Center()
+    layout.Show()
+    app.MainLoop()
+
+    # Here we check to see if the user wants to collect new data or if they
+    # want to run the program with the trained dataset.
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('mode', choices=['collect', 'demo'])
     parser.add_argument('--classifier', type=Path)
     args = parser.parse_args()
 
-    if args.mode == 'collect':
-        run_layout(DataCollectorLayout, title='Collect Data')
-    elif args.mode == 'demo':
+    if args.mode == 'collect':  #if this was selected, go to collection mode.
+        run_layout(DataCollectorLayout, title='Select Emotion and Take Photo to Collect Data')
+    elif args.mode == 'demo':   #Otherwise, we want to run the program.
         assert args.classifier is not None, 'you have to provide --classifier'
-        run_layout(FacialExpressionRecognizerLayout,
+        run_layout2(FacialExpressionRecognizerLayout,
                    title='Facial Expression Recognizer',
                    clf_path=args.classifier)
