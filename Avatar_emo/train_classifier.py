@@ -12,20 +12,23 @@ from data.store import pickle_dump
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--data', required=True)
-    parser.add_argument('--save', type=Path)
-    parser.add_argument('--num-components', type=int,
+    parser.add_argument('--data', required=True)    # Need path to captured data
+    parser.add_argument('--save', type=Path)        # For location to save model
+    parser.add_argument('--num-components', type=int,   # Can choose how many EigenVecs to look at
                         default=20)
     args = parser.parse_args()
 
     data, targets = load_collected_data(args.data)
 
     train, test = train_test_split(len(data), 0.8)
+
+    # Use PCA to reduce dimentionality in data and speed up algorithm
     x_train, pca_args = pca_featurize(np.array(data)[train],
                                       num_components=args.num_components)
 
     encoded_targets, index_to_label = one_hot_encode(targets)
 
+    # Create an MLP using OpenCV built in MLP create function
     last_layer_count = len(encoded_targets[0])
     mlp = cv2.ml.ANN_MLP_create()
     mlp.setLayerSizes(np.array([args.num_components, 10, last_layer_count], dtype=np.uint8))
@@ -35,17 +38,22 @@ if __name__ == '__main__':
 
     y_train = encoded_targets[train]
 
+    # Train on the data we provided from the image capture
     mlp.train(x_train, cv2.ml.ROW_SAMPLE, y_train)
 
+    # Use PCA to reduce dimentionality in data and speed up algorithm
     x_test = _pca_featurize(np.array(data)[test], *pca_args)
     _, predicted = mlp.predict(x_test)
 
     y_hat = np.array([index_to_label[np.argmax(y)] for y in predicted])
     y_true = np.array(targets)[test]
 
-    print('Training Accuracy:')
+    # Print out our accuracy calculated from the numpy array
+    print('Your Training Accuracy was:')
     print(sum(y_hat == y_true) / len(y_hat))
 
+    # If we chose to save, then take the .xml file that was generated so
+    # we can use it with OpenCV when we run our program
     if args.save:
         x_all, pca_args = pca_featurize(np.array(data), num_components=args.num_components)
         mlp.train(x_all, cv2.ml.ROW_SAMPLE, encoded_targets)

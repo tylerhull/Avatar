@@ -3,22 +3,19 @@
 
 
 """
-OpenCV with Python Blueprints
-Chapter 8: Learning to Recognize Emotion in Faces
+    An app that detects faces, reads emotions, and displays an avatar with the
+    same emotions as the detected face.
 
-    An app that combines both face detection and face recognition, with a
-    focus on recognizing emotional expressions in the detected faces.
 
-    The process flow is as follows:
-    * Run the GUI in Training Mode to assemble a training set. Upon exiting
-      the app will dump all assembled training samples to a pickle file
-      "datasets/faces_training.pkl".
-    * Run the script train_test_mlp.py to train a MLP classifier on the
-      dataset. This file will store the parameters of the trained MLP in
-      a file "params/mlp.xml" and dump the preprocessed dataset to a
-      pickle file "datasets/faces_preprocessed.pkl".
-    * Run the GUI in Testing Mode to apply the pre-trained MLP classifier
-      to the live stream of the webcam.
+    How to run the program:
+    1.  run the image collection program with: python3 avatar_emo.py collect
+        - take images of your face to use with the training for each emotion
+    2.  train the MLP on your images for each emotion or mouth shape
+        - do this by running the command: python3 train_classifier.py --data
+          <pathToYourData> --save <pathToWhereYouWantToSave>
+    3. Run the emotions program with: python3 avatar_emo.py demp --classifier
+        <PathToWhereYouSavedTheClassifier>
+
 """
 
 import argparse     # Library for parsing arguments from user
@@ -38,6 +35,8 @@ from wx_gui import BaseLayout                   # Get the base layout template f
 ### GLOBAL VARIABLES ###
 lastlabel = 'neutral' # Initialize variable for keeping track of emotion state
 
+
+### This class runs when DEMO mode is selected ###
 class FacialExpressionRecognizerLayout(BaseLayout):
     def __init__(self, *args,
                  clf_path=None,
@@ -182,6 +181,7 @@ class FacialExpressionRecognizerLayout(BaseLayout):
 
         return frame
 
+### This class runs when COLLECTION mode is selected ###
 class DataCollectorLayout(BaseLayout):
 
     def __init__(self, *args,
@@ -267,7 +267,7 @@ class DataCollectorLayout(BaseLayout):
             else:
                 print("Could not align head (eye detection failed?)")
 
-
+### GUI Layout for Collection MOde ###
 def run_layout(layout_cls, **kwargs):
     # open webcam
     capture = cv2.VideoCapture(0)
@@ -275,6 +275,7 @@ def run_layout(layout_cls, **kwargs):
     if not(capture.isOpened()):
         capture.open()
 
+    # Set the size of the openCV window that opens
     capture.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
     capture.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
 
@@ -285,6 +286,7 @@ def run_layout(layout_cls, **kwargs):
     layout.Show()
     app.MainLoop()
 
+# GUI Layout for Demo MOde
 def run_layout2(layout_cls, **kwargs):
     # open webcam
     capture = cv2.VideoCapture(0)
@@ -292,6 +294,7 @@ def run_layout2(layout_cls, **kwargs):
     if not(capture.isOpened()):
         capture.open()
 
+    # Set the size of the openCV window that opens
     capture.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
     capture.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
 
@@ -302,25 +305,9 @@ def run_layout2(layout_cls, **kwargs):
     layout.Show()
     app.MainLoop()
 
-def run_layout3(layout_cls, **kwargs):
-    # open webcam
-    capture = cv2.VideoCapture(0)
-    # opening the channel ourselves, if it failed to open.
-    if not(capture.isOpened()):
-        capture.open()
 
-    capture.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
-    capture.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
-
-    # start graphical user interface
-    app = wx.App()
-    layout = layout_cls(capture, **kwargs)
-    layout.Center()
-    layout.Show()
-    app.MainLoop()
-
-    # Here we check to see if the user wants to collect new data or if they
-    # want to run the program with the trained dataset.
+# Here we check to see if the user wants to collect new data or if they
+# want to run the program with the trained dataset.
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('mode', choices=['collect', 'demo'])

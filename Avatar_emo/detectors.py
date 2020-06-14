@@ -17,7 +17,10 @@ class FaceDetector:
     def __init__(self, *,
                  face_cascade='params/haarcascade_frontalface_default.xml',
                  eye_cascade='params/haarcascade_lefteye_2splits.xml',
+                 # Use this one if you have glasses
+                 #eye_cascade='params/haarcascade_eye_tree_eyeglasses.xml')
                  scale_factor=4):
+
         # resize images before detection
         self.scale_factor = scale_factor
 
@@ -51,7 +54,7 @@ class FaceDetector:
             minNeighbors=3,
             flags=cv2.CASCADE_SCALE_IMAGE) * self.scale_factor
 
-        # if face is found: extract head region from bounding box
+        # if face is found: extract head region from bounding box and get location
         for (x, y, w, h) in faces:
             if outline:
                 cv2.rectangle(rgb_img, (x, y), (x + w, y + h), (100, 255, 0),
@@ -62,6 +65,7 @@ class FaceDetector:
 
         return False, rgb_img, None, (None, None)
 
+    # Find the centers of the eyes so we can align head for consistency 
     def eye_centers(self, head, *, outline=False):
         height, width = head.shape[:2]
 
@@ -69,7 +73,7 @@ class FaceDetector:
                                              scaleFactor=1.1,
                                              minNeighbors=3,
                                              flags=cv2.CASCADE_SCALE_IMAGE)
-        if len(eyes) != 2:
+        if len(eyes) != 2: #Might be more than one face. Can't detect for 2.
             raise RuntimeError(f'Number of eyes {len(eyes)} != 2')
         eye_centers = []
         for x, y, w, h in eyes:
@@ -93,6 +97,7 @@ class FaceDetector:
             :param head: extracted head region
             :returns: success, head
         """
+
         # we want the eye to be at 25% of the width, and 20% of the height
         # resulting image should be square (desired_img_width,
         # desired_img_height)
@@ -110,12 +115,12 @@ class FaceDetector:
         else:
             right_eye, left_eye = eye_centers
 
-        # scale distance between eyes to desired length
+        # scale the distance between eyes to desired length
         eye_dist = np.linalg.norm(left_eye - right_eye)
         eyeSizeScale = (1.0 - desired_eye_x * 2) * desired_img_width / eye_dist
 
-        # get rotation matrix
-        # get center point between the two eyes and calculate angle
+        # get rotation matrix for face
+        # get center point between the two eyes and calculate angle so we can align
         eye_angle_deg = 180 / np.pi * np.arctan2(right_eye[1] - left_eye[1],
                                                  right_eye[0] - left_eye[0])
         eye_midpoint = (left_eye + right_eye) / 2
@@ -127,9 +132,9 @@ class FaceDetector:
         rot_mat[1, 2] += desired_eye_y * desired_img_height - eye_midpoint[1]
 
         # warp perspective to make eyes aligned on horizontal line and scaled
-        # to right size
+        # to right size so all out images are the same for training
         res = cv2.warpAffine(head, rot_mat, (desired_img_width,
                                              desired_img_width))
 
-        # return success
+        # return success if we could align the face
         return True, res
