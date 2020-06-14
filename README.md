@@ -2,11 +2,6 @@
 Facial recognition with openCV4 controlling monster avatar
 
 ## ****  Getting Started ****
-This project is heavily based on OpenCV 4 with Python Blueprints, Second Edition
-By Dr. Menua Gevorgyan, Arsen Mamikonyan, and Michael Beyeler
-You can buy the book and download lots of example code from:
-https://www.packtpub.com/
-
 This project should run on Windows, Mac, or Linux since it uses openCV and a
 cross platform GUI. Install the required packages with pip, but if you you are
 on linux... installing the wxpython files is not fun since the wheels are not
@@ -47,4 +42,3 @@ sudo nano /etc/modules
 NOTE:
 Most of those steps will need to be repeated every time the kernel is upgraded.
 --------------------------------------------------------------------------------
-
