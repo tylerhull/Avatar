@@ -14,7 +14,18 @@ EMOTIONS = {
     'angry': 2,
     'happy': 3,
     'sad': 4,
-    'disgusted': 5
+    'disgusted': 5,
+    'Ah': 6,
+    'D': 7,
+    'Ee': 8,
+    'F': 9,
+    'L': 10,
+    'M': 11,
+    'oh': 12,
+    'R': 13,
+    'S': 14,
+    'Uh': 15,
+    'Woo': 16
 }
 
 REVERSE_EMOTIONS = {v: k for k, v in EMOTIONS.items()}
@@ -72,4 +83,3 @@ if __name__ == '__main__':
     data, targets = load_collected_data('data/cropped_faces.csv')
     X, f = pca_featurize(data)
     print(X.shape)
-
