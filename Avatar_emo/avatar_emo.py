@@ -21,20 +21,22 @@ Chapter 8: Learning to Recognize Emotion in Faces
       to the live stream of the webcam.
 """
 
-import argparse
-import cv2
-import numpy as np
-import time
+import argparse     # Library for parsing arguments from user
+import cv2          # OpenCV library needed for working with openCV
+import numpy as np  # Num py library to work with arrays
+import time         # Library to work with time
+import boto3        # This is the library for talking to amazon lex
 
-import wx
+import wx           # Library for working with the wxPython GUI
 from pathlib import Path
 
-from data.store import save_datum, pickle_load
-from data.process import _pca_featurize
-from detectors import FaceDetector
-from wx_gui import BaseLayout       # Get the base layout template from wx
+from data.store import save_datum, pickle_load  # Used to save and read from files
+from data.process import _pca_featurize         # Needed to read face features
+from detectors import FaceDetector              # Detects a face in the frame
+from wx_gui import BaseLayout                   # Get the base layout template from wx
 
-lastlabel = 'neutral'
+### GLOBAL VARIABLES ###
+lastlabel = 'neutral' # Initialize variable for keeping track of emotion state
 
 class FacialExpressionRecognizerLayout(BaseLayout):
     def __init__(self, *args,
@@ -74,6 +76,23 @@ class FacialExpressionRecognizerLayout(BaseLayout):
 
         print(img.shape)
         # (225, 400, 3)
+
+        #txt = input("You can talk to Ella by typing something to her.")
+
+        #response = client.post_text(
+        #botName='PizzaOrderingBot',
+        #botAlias='MeanPizzaBot',
+        #userId='user1',
+        #sessionAttributes={
+    #        'string': 'string'
+    #    },
+    #    requestAttributes={
+    #        'string': 'string'
+    #    },
+    #    inputText=txt
+    #    )
+
+
 
         #img_rotate_90_clockwise = cv2.rotate(img, cv2.ROTATE_90_CLOCKWISE)
         #cv2.imwrite('pen2.jpg', img_rotate_90_clockwise)
